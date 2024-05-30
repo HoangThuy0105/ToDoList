@@ -1,0 +1,82 @@
+﻿@model IEnumerable<Todo>
+
+<div class="row">
+    <div class="col-md-2">
+        <form action="Filter" method="post">
+            <div class="mb-3">
+                <label class="form-label">Category</label>
+                <select name="categoryFilter" class="form-select"
+                        asp-items="@(new SelectList(ViewBag.Categories, "CategoryId", "Name", ViewBag.Filters.CategoryId))">
+                    <option value="all">All</option>
+                </select>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Due Date</label>
+                <select name="dueFilter" class="form-select"
+                        asp-items="@(new SelectList(ViewBag.DueFilters, "Key", "Value", ViewBag.Filters.Due))">
+                    <option value="all">All</option>
+                </select>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Status</label>
+                <select name="statusFilter" class="form-select"
+                        asp-items="@(new SelectList(ViewBag.Statuses, "StatusId", "StatusName", ViewBag.Filters.StatusId))">
+                    <option value="all">All</option>
+                </select>
+            </div>
+            <button type="submit" class="btn btn-primary">Apply Filters</button>
+            <a asp-action="Index" class="btn btn-primary">Clear</a>
+        </form>
+    </div>
+    <div class="col-md-10">
+        <form asp-action="MarkComplete" method="post">
+            <table class="table table-bordered table-striped mt-2">
+                <thead>
+                    <tr>
+                        <th>Description</th>
+                        <th>Category</th>
+                        <th>Due Date</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (Model != null)
+                    {
+                        foreach (Todo task in Model)
+                        {
+                            if (task != null)
+                            {
+                                string overdueClass = task.Overdue ? "bg-warning" : "";
+                                <tr>
+                                    <td>@task.Description</td>
+                                    <td>@(task.Category != null ? task.Category.Name : "")</td>
+                                    <td class="@overdueClass">@task.DueDate?.ToShortDateString()</td>
+                                    <td>
+                                        @if (task.StatusId == "open")
+                                        {
+                                            <button type="submit" class="btn btn-primary btn-sm"
+                                                    name="taskId" value="@task.Id">
+                                                Mark Completed
+                                            </button>
+                                        }
+                                    </td>
+                                </tr>
+                            }
+                        }
+                    }
+                    else
+                    {
+                        <p>No tasks found.</p>
+                    }
+
+                </tbody>
+            </table>
+        </form>
+        <form asp-action="DeleteCompleted" method="post">
+            <div class="mt-2">
+                <a asp-action="Add" class="btn btn-primary btn-sm">Add New Task</a>
+                <button type="submit" class="btn btn-primary btn-sm">Delete Completed Tasks</button>
+            </div>
+        </form>
+    </div>
+</div>
